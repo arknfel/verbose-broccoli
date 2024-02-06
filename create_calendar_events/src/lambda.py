@@ -64,6 +64,8 @@ def get_calendar_data(url):
 
 def lambda_handler(event, context):
     logger.info(json.dumps({'event': event}))
+
+    # Config
     _event: dict = event
     account_id = _event['account_id']
     region = _event['region']
@@ -73,20 +75,24 @@ def lambda_handler(event, context):
     date_format = _event.get('date_format', r'%Y-%m-%d %H:%M')
     name_regex = _event.get('name_regex', {'replacement_regex': r'[ ()-]', 'char': '_'})
     expirydate_offset = _event.get('expirydate_offset', 7)
-    # breakpoint()
+
     expiry_date = arrow.now(tz=timezone).shift(days=-expirydate_offset)
+
     logger.info(f'Fetchine calendar data at url:{calendar_url}')
     calenders = get_calendar_data(calendar_url)
+
     expired = []
     eligible = []
     events_created = []
     logger.info("Initializing client 'EventBridge'")
-    # eventbridge = boto3.client('events')
-    eventbridge = boto3.Session(profile_name='saml').client('events', region_name='eu-central-1')
-    # breakpoint()
+    eventbridge = boto3.client('events')
+    # eventbridge = boto3.Session(profile_name='saml').client('events', region_name='eu-central-1')
+
+    # Attribute templates
     rule_name = '{}_{}_{}'
     cron_expr = 'cron({} {} {} {} ? {})'
     lamda_arn = f'arn:aws:lambda:{region}:{account_id}:function:'
+
     for calendar in calenders:
         logger.info('Processing calendar events')
         for event in calendar.events:
@@ -105,9 +111,6 @@ def lambda_handler(event, context):
                 continue
 
             eligible.append(event_meta)
-
-            # Rule attributes
-
 
             tags = [{'Key': 'expiry_timestamp', 'Value': f'{event_expirydate.timestamp()}'}]
 
@@ -148,12 +151,3 @@ def lambda_handler(event, context):
     logger.info(json.dumps({'expired': expired, 'eligible': eligible}))
     logger.info(json.dumps({'events_created': events_created}))
     logger.info('Done.')
-
-
-if __name__ == '__main__':
-    event = {
-        "account_id": "455085381974",
-        "region": "eu-central-1",
-        "calendar_url": "https://confluence.sp.vodafone.com/rest/calendar-services/1.0/calendar/export/subcalendar/private/1e244d483a2e49d3c3c1b8d0e15bbf3e7bafc39b.ics",
-    }
-    lambda_handler(event, None)
