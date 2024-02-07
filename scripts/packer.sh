@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-cd $SCRIPTPATH/$1
+cd $SCRIPTPATH/../businesslogic/$1
 
 # Create venv
 rm -rf packagevenv
@@ -35,3 +35,8 @@ rm -rf packagevenv
 
 # Cleanup libs
 rm -rf libs.zip libs
+
+# Delpoy source-code to lambda
+aws lambda update-function-code --function-name $1 --zip-file fileb://package.zip
+
+rm -rf package*
