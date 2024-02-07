@@ -3,11 +3,9 @@ import requests
 import json
 import re
 
+import boto3
 import arrow
 from ics import Calendar
-
-import boto3
-from botocore.exceptions import ClientError
 
 
 logger = logging.getLogger()
@@ -15,7 +13,14 @@ logger.setLevel(logging.INFO)
 
 
 class CronRule:
-    def __init__(self, logger: logging.Logger, name, cron_expr, state='ENABLED', client=None):
+    def __init__(
+        self,
+        logger: logging.Logger,
+        name,
+        cron_expr,
+        state='ENABLED',
+        client=None
+    ):
         self.client = boto3.client('events') if not client else client
         self.logger = logger
         self.name = name
@@ -25,9 +30,12 @@ class CronRule:
         self.tags = []
 
     def create(self):
-        self.arn = self.client.put_rule(Name=self.name, ScheduleExpression=self.cron_expr, State=self.state)[
-            'RuleArn'
-        ]
+        response = self.client.put_rule(
+            Name=self.name,
+            ScheduleExpression=self.cron_expr,
+            State=self.state
+        )
+        self.arn = response['RuleArn']
         return self
 
     def list_targets(self):
@@ -86,7 +94,6 @@ def lambda_handler(event, context):
     events_created = []
     logger.info("Initializing client 'EventBridge'")
     eventbridge = boto3.client('events')
-    # eventbridge = boto3.Session(profile_name='saml').client('events', region_name='eu-central-1')
 
     # Attribute templates
     rule_name = '{}_{}_{}'
@@ -118,7 +125,7 @@ def lambda_handler(event, context):
             label = 'start'
             _time = event.begin
             target_id = 'EC2_ondemand_' + label
-            arn = lamda_arn + target_id
+            target_arn = lamda_arn + target_id
 
             rule = CronRule(
                 logger,
@@ -127,14 +134,14 @@ def lambda_handler(event, context):
                 client=eventbridge,
             )
             rule.create()
-            rule.put_targets([{'Id': target_id, 'Arn': arn}])
+            rule.put_targets([{'Id': target_id, 'Arn': target_arn}])
             rule.tag(tags)
 
             # Create end rule
             label = 'end'
             _time = event.end
             target_id = 'EC2_ondemand_' + label
-            arn = lamda_arn + target_id
+            target_arn = lamda_arn + target_id
 
             rule = CronRule(
                 logger,
@@ -143,7 +150,7 @@ def lambda_handler(event, context):
                 client=eventbridge,
             )
             rule.create()
-            rule.put_targets([{'Id': target_id, 'Arn': arn}])
+            rule.put_targets([{'Id': target_id, 'Arn': target_arn}])
             rule.tag(tags)
 
             events_created.append(event_meta)
@@ -151,3 +158,6 @@ def lambda_handler(event, context):
     logger.info(json.dumps({'expired': expired, 'eligible': eligible}))
     logger.info(json.dumps({'events_created': events_created}))
     logger.info('Done.')
+
+
+
