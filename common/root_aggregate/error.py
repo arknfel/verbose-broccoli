@@ -1,9 +1,7 @@
 import traceback as tb
 
-from common.interfaces.error import RepositoryError
 
-
-class RootError(Exception):
+class Error(Exception):
     def __init__(self, message=None, origin: Exception = None, traceback=False):
         """
         Root exception type, base for all custom exception types.
@@ -40,16 +38,7 @@ class NoRetryError(Exception):
     """
 
 
-class UnexpectedError(RootError):
+class UnexpectedError(Error):
     """
     Exception type that stands for excpetions that were not deliberatly handled.
     """
-
-
-class EntityError(RootError): ...
-
-
-class ConfigError(RepositoryError): ...
-
-
-class ActorError(EntityError): ...

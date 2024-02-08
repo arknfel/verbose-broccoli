@@ -12,11 +12,11 @@ class AWSServiceConfig(Service.config_type):
 
     @property
     def account_id(self):
-        return self.get('account_id')
+        return self.repo.get('account_id')
 
     @property
     def region(self):
-        return self.get('region')
+        return self.repo.get('region')
 
 
 class AWSService(Service):

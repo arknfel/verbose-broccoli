@@ -1,16 +1,16 @@
-from common.root_aggregate import Actor, Config
-from common.root_aggregate.error import ActorError, ConfigError
+from common.root_aggregate import Actor
 
 
-class ServiceConfigError(ConfigError): ...
+class ServiceConfigError(Actor.config_type.error_type): ...
 
 
-class ServiceError(ActorError): ...
+class ServiceError(Actor.error_type): ...
 
 
-class ServiceConfig(Config):
+class ServiceConfig(Actor.config_type):
     error_type = ServiceConfigError
 
 
 class Service(Actor):
     error_type = ServiceError
+    config_type = ServiceConfig
