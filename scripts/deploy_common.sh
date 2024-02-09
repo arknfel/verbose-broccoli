@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-cd $SCRIPTPATH/../businesslogic/$1
+cd $SCRIPTPATH/../common/
 
 # Create venv
 rm -rf packagevenv
@@ -21,7 +21,8 @@ packagevenv/bin/pip install -r requirements.txt
 # Move source-code to package
 RUNTIME=$( ls -l packagevenv/lib | grep python | awk '{print $NF}' )
 cp -R packagevenv/lib/$RUNTIME/site-packages/* package
-cp src/*.* package
+# cp -r * package
+rsync -a ./ package --exclude package --exclude packagevenv
 
 cd package
 
@@ -36,7 +37,9 @@ rm -rf packagevenv
 # Cleanup libs
 rm -rf libs.zip libs
 
-# Delpoy source-code to lambda
-aws lambda update-function-code --function-name $1 --zip-file fileb://package.zip
-
-rm -rf package*
+# aws lambda publish-layer-version \
+#     --layer-name common \
+#     --description "Common modules" \
+#     --zip-file fileb://package.zip \
+#     --compatible-runtimes python3.10 python3.11 \
+#     || rm -rf package*
