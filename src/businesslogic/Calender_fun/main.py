@@ -1,5 +1,5 @@
 from common.root_aggregate import Actor
-from common.implementations import DictRepository
+from common.implementations.inmemory_repository import DictRepository
 from .config import CalendarEventActorConfig
 
 

@@ -10,7 +10,7 @@ class Repository(Entity):
     error_type = RepositoryError
 
     def __init__(self, data):
-        self.data = data
+        self.repo = data
 
     @abstractmethod
     def get(self, _id): ...
