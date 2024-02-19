@@ -1,63 +1,26 @@
-from abc import abstractmethod
+from inspect import isclass
+
+from common.interfaces import repository
 
 from .entity import Entity
-from common.interfaces import Repository
-from common.implementations.inmemory_repository import ObjectRepository
+from .value_object import ValueObject
 
 
-class ConfigError(ObjectRepository.error_type): ...
-
-
-class Config(ObjectRepository):
-    error_type = ConfigError
-
-    def __init__(self, repo: Repository, *args, **kwargs):
-        super().__init__(repo)
-        # self.repo = self.data
-        self.validate(*args, **kwargs)
-
-    def validate(self, *args, **kwargs):
-        pass
-
-
-class ActorError(Entity.error_type): ...
-
+class Config(ValueObject):
+    ...
 
 class Actor(Entity):
-    error_type = ActorError
-    config_type = Config
+    config: Config
 
-    def __init__(self, repo: Repository):
-        try:
-            self.config = self.config_type(repo)
-        except self.config_type.error_type as e:
-            raise self.error_type(origin=e)
-
-    @property
-    def action(self):
-        return Action
-
-
-class ActionConfigError(Config.error_type): ...
-
-
-class ActionError(Actor.error_type): ...
-
-
-class ActionConfig(Config):
-    error_type = ActionConfigError
-
-    @property
-    @abstractmethod
-    def action_name(self): ...
-
-
-class Action(Actor):
-    error_type = ActionError
-    config_type = ActionConfig
-
-    @abstractmethod
-    def do(self): ...
-
-    @abstractmethod
-    def undo(self): ...
+    def __init__(self, configs: repository):
+        if hasattr(self, '__annotations__'):
+            for name, _type in self.__annotations__.items():
+                try:
+                    if isclass(_type) and issubclass(_type, ValueObject):
+                        obj: ValueObject = _type(configs)
+                    elif isclass(_type) and issubclass(_type, Actor):
+                        obj: Actor = _type(self.config.value)
+                    setattr(self, name, obj)
+                    obj.owner = self
+                except Entity.error as e:
+                    raise self.error(origin=e)

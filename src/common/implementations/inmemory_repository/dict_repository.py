@@ -1,7 +1,7 @@
 from common.interfaces import Repository
 
 
-class DictRepositoryError(Repository.error_type): ...
+class DictRepositoryError(Repository.error): ...
 
 
 class DuplicateIdError(Exception):

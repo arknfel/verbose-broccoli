@@ -1,16 +1,14 @@
 from abc import abstractmethod
 
-from common.root_aggregate import Entity
+from common.root_aggregate.entity import Entity
 
 
-class RepositoryError(Entity.error_type): ...
+# class RepositoryError(Entity.error): ...
 
 
 class Repository(Entity):
-    error_type = RepositoryError
-
     def __init__(self, data):
-        self.repo = data
+        self.data = data
 
     @abstractmethod
     def get(self, _id): ...

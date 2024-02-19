@@ -12,9 +12,9 @@ class Error(Exception):
 
         if origin:
             if message:
-                self._error_message = f'{message}: {origin.__class__.__name__}: {str(origin)}'
+                self._error_message = f'{message}:\n  {origin.__class__.__name__}: {str(origin)}'
             else:
-                self._error_message = f'{origin.__class__.__name__}: {str(origin)}'
+                self._error_message = f'\n  {origin.__class__.__name__}: {str(origin)}'
         else:
             self._error_message = message if message else ''
 
