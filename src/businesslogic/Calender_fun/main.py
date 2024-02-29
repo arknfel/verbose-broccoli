@@ -7,8 +7,7 @@ class CalendarEventActorError(Actor.error_type): ...
 
 
 class CalendarEventActor(Actor):
-    error_type = CalendarEventActorError
-    config_type = CalendarEventActorConfig
+    config: CalendarEventActorConfig
 
     def main(self): ...
 

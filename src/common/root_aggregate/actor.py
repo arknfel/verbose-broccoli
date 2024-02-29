@@ -6,16 +6,18 @@ from .entity import Entity
 from .value_object import ValueObject
 
 
-class Config(ValueObject):
-    ...
+class Config(ValueObject): ...
+
 
 class Actor(Entity):
     config: Config
+    config_type = Config
 
     def __init__(self, configs: repository):
         if hasattr(self, '__annotations__'):
             for name, _type in self.__annotations__.items():
                 try:
+                    # breakpoint()
                     if isclass(_type) and issubclass(_type, ValueObject):
                         obj: ValueObject = _type(configs)
                     elif isclass(_type) and issubclass(_type, Actor):
@@ -24,3 +26,6 @@ class Actor(Entity):
                     obj.owner = self
                 except Entity.error as e:
                     raise self.error(origin=e)
+
+
+class Action(Actor): ...
