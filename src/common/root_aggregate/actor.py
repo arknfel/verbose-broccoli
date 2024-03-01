@@ -1,6 +1,7 @@
 from inspect import isclass
 
 from common.interfaces import repository
+from common.root_aggregate.error import UnexpectedError
 
 from .entity import Entity
 from .value_object import ValueObject
@@ -26,6 +27,8 @@ class Actor(Entity):
                     obj.owner = self
                 except Entity.error as e:
                     raise self.error(origin=e)
+                except Exception as e:
+                    raise self.error(origin=UnexpectedError(origin=e))
 
 
 class Action(Actor): ...
