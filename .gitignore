@@ -1,1 +1,7 @@
 **/package*
+**/.DS_Store
+
+**/__pycache__/
+**/.ipynb*
+**/.pycache*
+**/dev
