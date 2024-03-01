@@ -1,4 +1,5 @@
 from inspect import isclass
+from typing import Union, Type
 
 from common.interfaces import repository
 from common.root_aggregate.error import UnexpectedError
@@ -7,7 +8,10 @@ from .entity import Entity
 from .value_object import ValueObject
 
 
-class Config(ValueObject): ...
+class Config(ValueObject):
+    @property
+    def label(self):
+        return 'config'
 
 
 class Actor(Entity):
@@ -18,7 +22,7 @@ class Actor(Entity):
         if hasattr(self, '__annotations__'):
             for name, _type in self.__annotations__.items():
                 try:
-                    # breakpoint()
+                    obj: Union[Type[ValueObject], Type[None]] = None
                     if isclass(_type) and issubclass(_type, ValueObject):
                         obj: ValueObject = _type(configs)
                     elif isclass(_type) and issubclass(_type, Actor):
@@ -31,4 +35,5 @@ class Actor(Entity):
                     raise self.error(origin=UnexpectedError(origin=e))
 
 
-class Action(Actor): ...
+class Action(Actor):
+    ...

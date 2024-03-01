@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 from common.cloud_services import Service
 from common.interfaces.repository import Repository
-from common.interfaces.logger import Logger
+# from common.interfaces.logger import Logger
 from common.root_aggregate.error import UnexpectedError
 from .properties import AwsAccountId, AwsRegion, AwsClientKwargs, AwsClientConfig
 
@@ -23,27 +23,6 @@ class AWSServiceConfig(Service.config_type):
     region: AwsRegion
     kwargs: AwsClientKwargs
     client_config: AwsClientConfig
-
-    # @property
-    # def account_id(self):
-    #     return self.data.get('account_id')
-
-    # @property
-    # def region(self):
-    #     return self.data.get('region')
-
-    # @property
-    # def kwargs(self):
-    #     kwargs: dict = self.data.get('kwargs', {})
-    #     kwargs.update({'service_name': self.service_name})
-    #     return kwargs
-
-    # @property
-    # def client_config(self):
-    #     client_config = self.data.get('client_config')
-    #     if client_config:
-    #         return Config(client_config)
-    #     return None
 
 
 class AWSService(Service):

@@ -1,27 +1,30 @@
 from unittest import TestCase
 
 from common.cloud_services.aws.service import AWSService, AWSServiceConfig
+from common.implementations.inmemory_repository import DictRepository
 
 
 class TestAWSService(TestCase):
 
     def test_init(self):
-        class MockAWSServiceConfig(AWSServiceConfig):
+        class S3ServiceConfig(AWSServiceConfig):
             @property
             def label(self):
                 return self.service_name
 
             @property
             def service_name(self):
-                return 'mock_service'
+                return 's3'
 
-        class MockAWSService(AWSService):
-            config: MockAWSServiceConfig
+        class S3Service(AWSService):
+            config: S3ServiceConfig
 
         config_meta = {
-            'mock_service': {
+            's3': {
                 'account_id': 123,
-                'region': 'eu-central-1'
+                'region_name': 'eu-central-1'
             }
         }
-        svc = MockAWSService(config_meta)
+        repo = DictRepository(config_meta)
+        svc = S3Service(repo)
+        assert svc
